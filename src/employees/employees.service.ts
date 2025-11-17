@@ -58,43 +58,44 @@ export class EmployeesService {
     const emp = await this.repo.findOne({ where: { id } });
     if (!emp) throw new NotFoundException('Employee not found');
     Object.assign(emp, {
-      // Personal
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      mobile: dto.mobile,
-      dob: dto.dob,
-      maritalStatus: dto.maritalStatus,
-      gender: dto.gender,
-      nationality: dto.nationality,
-      address: dto.address,
-      state: dto.state,
-      city: dto.city,
-      zip: dto.zip,
+      firstName: dto.firstName ?? emp.firstName ?? null,
+      lastName: dto.lastName ?? emp.lastName ?? null,
+      mobile: dto.mobile ?? emp.mobile ?? null,
+      dob: dto.dob ?? emp.dob ?? null,
 
-      bankAccountHolder: dto.bankAccountHolder,
-      rib: dto.rib,
-      cnss: dto.cnss,
-      emergencyFirstName: dto.emergencyFirstName,
-      emergencyLastName: dto.emergencyLastName,
-      emergencyNumber: dto.emergencyNumber,
-      relationship: dto.relationship,
-      // Pro
-      department: dto.department,
-      designation: dto.designation,
-      // Contracts
-      contractType: dto.contractType,
-      weeklyWork: dto.weeklyWork,
-      contractStart: dto.contractStart,
-      trialEnd: dto.trialEnd,
-      grossSalary: dto.grossSalary,
-      grossHourlyRate: dto.grossHourlyRate,
+      address: dto.address ?? emp.address ?? null,
+      state: dto.state ?? emp.state ?? null,
+      city: dto.city ?? emp.city ?? null,
+      zip: dto.zip ?? emp.zip ?? null,
+
+      maritalStatus: dto.maritalStatus ?? emp.maritalStatus ?? null,
+      gender: dto.gender ?? emp.gender ?? null,
+      nationality: dto.nationality ?? emp.nationality ?? null,
+
+      bankAccountHolder: dto.bankAccountHolder ?? emp.bankAccountHolder ?? null,
+      rib: dto.rib ?? emp.rib ?? null,
+      cnss: dto.cnss ?? emp.cnss ?? null,
+      emergencyFirstName: dto.emergencyFirstName ?? emp.emergencyFirstName ?? null,
+      emergencyLastName: dto.emergencyLastName ?? emp.emergencyLastName ?? null,
+      emergencyNumber: dto.emergencyNumber ?? emp.emergencyNumber ?? null,
+      relationship: dto.relationship ?? emp.relationship ?? null,
+
+      department: dto.department ?? emp.department ?? null,
+      designation: dto.designation ?? emp.designation ?? null,
 
 
+      contractType: dto.contractType ?? emp.contractType ?? null,
+      weeklyWork: dto.weeklyWork ?? emp.weeklyWork ?? null,
+      contractStart: dto.contractStart ?? emp.contractStart ?? null,
+      trialEnd: dto.trialEnd ?? emp.trialEnd ?? null,
+
+      grossSalary: dto.grossSalary ?? emp.grossSalary ?? null,
+      grossHourlyRate: dto.grossHourlyRate ?? emp.grossHourlyRate ?? null,
     });
     await this.repo.save(emp);
     return { ok: true, employee: emp };
   }
-  
+
   async updateRoles(id: string, roles: Role[]) {
     const emp = await this.repo.findOne({ where: { id } });
     if (!emp) throw new NotFoundException('Employee not found');
@@ -102,6 +103,10 @@ export class EmployeesService {
     emp.roles = roles && roles.length > 0 ? roles : [Role.Employee];
     await this.repo.save(emp);
     return { ok: true, employee: emp };
+  }
+
+  findAll() {
+    return this.repo.find({ order: { createdAt: 'DESC' } });
   }
 
   /*

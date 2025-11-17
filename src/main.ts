@@ -2,10 +2,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
    const port = Number(process.env.PORT || 4000);
-   const app = await NestFactory.create(AppModule, { cors: true });
+   const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true });
+   app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads/' });
     app.enableCors({
     origin: ['http://localhost:4200'],
     credentials: true,

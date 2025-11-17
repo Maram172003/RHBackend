@@ -6,6 +6,7 @@ import { Employee } from './employees/employees.entity';
 import { EmployeesModule } from './employees/employees.module';
 import { LookupsController } from './lookups/lookups.controller';
 import { LookupsModule } from './lookups/lookups.module';
+import { LeavesModule } from './leaves/leaves.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { LookupsModule } from './lookups/lookups.module';
     EmployeesModule,
     AuthModule,
     LookupsModule,
+    LeavesModule
   ],
   controllers: [LookupsController],
 })

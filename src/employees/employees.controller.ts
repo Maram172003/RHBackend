@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -27,6 +27,12 @@ export class EmployeesController {
   @ApiOperation({ summary: 'Mettre à jour les rôles (dernier onglet)' })
   updateRoles(@Param('id') id: string, @Body() dto: UpdateRolesDto) {
     return this.service.updateRoles(id, dto.roles);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Lister tous les employés' })
+  findAll() {
+    return this.service.findAll();
   }
   /*
       @Patch(':id/profile')
