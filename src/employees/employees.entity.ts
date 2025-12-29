@@ -1,5 +1,5 @@
 import { Role } from 'src/auth/roles.enum';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 import { ContractType, Gender, MaritalStatus, Relationship } from './dto/details-employee.dto';
 import { StateTN } from './constants/tunisia';
 
@@ -10,25 +10,25 @@ export class Employee {
 
   @Column({ unique: true })
   email: string;
-  
-  
+
+
   @Column()
   accessCodeHash: string;
 
   @Column({ default: true })
   mustResetAccessCode: boolean;
 
-    @Column({
+  @Column({
     type: 'enum',
     enum: Role,
     array: true,
-    default: [Role.Employee], 
+    default: [Role.Employee],
   })
   roles: Role[];
 
- //
+  //
 
-   @Column({ nullable: true })
+  @Column({ nullable: true })
   firstName?: string;
 
   @Column({ nullable: true })
@@ -43,7 +43,7 @@ export class Employee {
   @Column({ type: 'enum', enum: StateTN, nullable: true })
   state?: StateTN;
 
- 
+
   @Column({ nullable: true })
   city?: string;
 
@@ -60,11 +60,11 @@ export class Employee {
   @Column({ nullable: true })
   nationality?: string;
 
- 
+
   @Column({ type: 'date', nullable: true })
   dob?: string;
 
-  
+
   @Column({ nullable: true })
   bankAccountHolder?: string;
 
@@ -99,7 +99,7 @@ export class Employee {
   @Column({ type: 'enum', enum: ContractType, nullable: true })
   contractType?: ContractType;
 
- 
+
   @Column({ nullable: true })
   weeklyWork?: string;
 
@@ -118,4 +118,8 @@ export class Employee {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Index()
+  @Column({ default: true })
+  isDraft: boolean;
 }

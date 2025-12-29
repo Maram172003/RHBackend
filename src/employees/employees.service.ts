@@ -13,6 +13,7 @@ export class EmployeesService {
 
   constructor(@InjectRepository(Employee) private readonly repo: Repository<Employee>) { }
 
+
   async create(dto: CreateEmployeeDto) {
     const exists = await this.repo.findOne({ where: { email: dto.email } });
     if (exists) {
@@ -92,6 +93,7 @@ export class EmployeesService {
       grossSalary: dto.grossSalary ?? emp.grossSalary ?? null,
       grossHourlyRate: dto.grossHourlyRate ?? emp.grossHourlyRate ?? null,
     });
+    emp.isDraft = false;
     await this.repo.save(emp);
     return { ok: true, employee: emp };
   }
@@ -108,6 +110,38 @@ export class EmployeesService {
   findAll() {
     return this.repo.find({ order: { createdAt: 'DESC' } });
   }
+
+  async createDraft(email: string, previousDraftId?: string) {
+    const normalized = email.trim().toLowerCase();
+
+    // si draft précédent existe
+    if (previousDraftId) {
+      const prev = await this.repo.findOne({ where: { id: previousDraftId } });
+      if (prev) {
+        // même email => réutiliser le draft (ne pas générer nouveau)
+        if (prev.email === normalized) {
+          return { employee: prev, plainAccessCode: null };
+        }
+        // email changé => supprimer ancien draft
+        await this.repo.delete(prev.id);
+      }
+    }
+
+    // maintenant on peut appeler create() sans conflit
+    const res = await this.create({ email: normalized } as any);
+
+    // marquer comme draft si tu as isDraft
+    await this.repo.update(res.employee.id, { isDraft: true });
+    res.employee.isDraft = true;
+
+    return res;
+  }
+
+  async removeDraft(id: string) {
+    await this.repo.delete(id);
+    return { ok: true };
+  }
+
 
   /*
   async updateProfile(id: string, dto: Partial<DetailsEmployeeDto>) {

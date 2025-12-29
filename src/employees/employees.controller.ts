@@ -34,6 +34,16 @@ export class EmployeesController {
   findAll() {
     return this.service.findAll();
   }
+
+  @Post('draft')
+createDraft(@Body() body: { email: string; previousDraftId?: string }) {
+  return this.service.createDraft(body.email, body.previousDraftId);
+}
+
+@Delete(':id/draft')
+deleteDraft(@Param('id') id: string) {
+  return this.service.removeDraft(id);
+}
   /*
       @Patch(':id/profile')
     @ApiOperation({ summary: 'Mettre à jour le profil (plus tard)' })

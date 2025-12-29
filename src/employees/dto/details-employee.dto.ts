@@ -50,7 +50,7 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   mobile: string;
 
   @ApiProperty({ description: 'Date de naissance (ISO 8601)' })
-  @IsDateString()
+  @IsDateString()@IsNotEmpty()
   dob: string;
 
   @ApiProperty()
@@ -58,12 +58,12 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   address: string;
 
   @ApiProperty({ description: 'Ville correspondant au gouvernorat state' })
-  @IsString() 
+  @IsString() @IsNotEmpty()
   @IsCityOfState('state', { message: 'city must belong to the given state' })
   city: string;
 
   @ApiProperty({ enum: StateTN })
-  @IsEnum(StateTN)
+  @IsEnum(StateTN)@IsNotEmpty()
   state: StateTN;
 
   @ApiProperty()
@@ -122,7 +122,7 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   designation: string;
 
   @ApiProperty({ enum: ContractType })
-  @IsEnum(ContractType)
+  @IsEnum(ContractType) @IsNotEmpty()
   contractType: ContractType;
 
   @ApiProperty()
