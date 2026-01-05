@@ -4,6 +4,7 @@ import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { DetailsEmployeeDto } from './dto/details-employee.dto';
 import { UpdateRolesDto } from './dto/update-roles.dto';
+import { SubmitDraftDto } from './dto/SubmitDraftDto ';
 
 @ApiTags('employees')
 @Controller('employees')
@@ -36,31 +37,28 @@ export class EmployeesController {
   }
 
   @Post('draft')
-createDraft(@Body() body: { email: string; previousDraftId?: string }) {
-  return this.service.createDraft(body.email, body.previousDraftId);
-}
+  createDraft(@Body() dto: { email: string }) {
+    return this.service.createDraft(dto.email);
+  }
 
-@Delete(':id/draft')
-deleteDraft(@Param('id') id: string) {
-  return this.service.removeDraft(id);
-}
-  /*
-      @Patch(':id/profile')
-    @ApiOperation({ summary: 'Mettre à jour le profil (plus tard)' })
-    updateProfile(@Param('id') id: string, @Body() dto: Partial<DetailsEmployeeDto>) {
-      return this.service.updateProfile(id, dto);
-    }
-  
-    @Patch(':id/seen')
-    @ApiOperation({ summary: 'Marquer comme vu (seen)' })
-    markSeen(@Param('id') id: string) {
-      return this.service.markSeen(id);
-    }
-  
-    @Delete(':id')
-    @ApiOperation({ summary: 'Supprimer un employé' })
-    remove(@Param('id') id: string) {
-      return this.service.remove(id);
-    }
-      */
+
+  @Delete('draft/:token')
+  deleteDraft(@Param('token') token: string) {
+    return this.service.deleteDraft(token);
+  }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.service.findById(id);
+  }
+
+  @Post('submit')
+  submit(@Body() dto: SubmitDraftDto) {
+    return this.service.submitDraft(dto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.service.remove(id);
+  }
+
 }

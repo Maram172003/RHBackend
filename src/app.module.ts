@@ -7,9 +7,14 @@ import { EmployeesModule } from './employees/employees.module';
 import { LookupsController } from './lookups/lookups.controller';
 import { LookupsModule } from './lookups/lookups.module';
 import { LeavesModule } from './leaves/leaves.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
+    CacheModule.register({
+      ttl: 1800,
+      isGlobal: true,
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -19,7 +24,8 @@ import { LeavesModule } from './leaves/leaves.module';
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       entities: [Employee],
-      synchronize: true, // pour dev uniquement
+      synchronize: true,
+
     }),
     EmployeesModule,
     AuthModule,
@@ -28,4 +34,4 @@ import { LeavesModule } from './leaves/leaves.module';
   ],
   controllers: [LookupsController],
 })
-export class AppModule {}
+export class AppModule { }

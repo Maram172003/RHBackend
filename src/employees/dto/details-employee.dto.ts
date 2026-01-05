@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
-import { IsDateString, IsEnum, IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, MinLength } from "class-validator";
+import { IsDateString, IsEnum, IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUUID, MinLength } from "class-validator";
 import { StateTN } from "../constants/tunisia";
 import { IsCityOfState } from "src/common/validators/is-city-of-state.validator";
 import { NATIONALITIES, Nationality } from "../constants/nationalities";
 import { CreateEmployeeDto } from "./create-employee.dto";
+
 
 export enum MaritalStatus {
   Single = 'Single',
@@ -50,7 +51,7 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   mobile: string;
 
   @ApiProperty({ description: 'Date de naissance (ISO 8601)' })
-  @IsDateString()@IsNotEmpty()
+  @IsDateString() @IsNotEmpty()
   dob: string;
 
   @ApiProperty()
@@ -63,7 +64,7 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   city: string;
 
   @ApiProperty({ enum: StateTN })
-  @IsEnum(StateTN)@IsNotEmpty()
+  @IsEnum(StateTN) @IsNotEmpty()
   state: StateTN;
 
   @ApiProperty()
@@ -89,7 +90,7 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   bankAccountHolder: string;
 
   @ApiProperty()
-  @IsString() @MinLength(10)@IsNotEmpty()
+  @IsString() @MinLength(10) @IsNotEmpty()
   rib: string;
 
   @ApiProperty()
@@ -130,18 +131,22 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   weeklyWork: string;
 
   @ApiProperty()
-  @IsDateString()@IsNotEmpty()
+  @IsDateString() @IsNotEmpty()
   contractStart: string;
 
   @ApiProperty()
-  @IsDateString()@IsNotEmpty()
+  @IsDateString() @IsNotEmpty()
   trialEnd: string;
 
   @ApiProperty()
-  @IsNumberString()@IsNotEmpty()
+  @IsNumberString() @IsNotEmpty()
   grossSalary: string;
 
   @ApiProperty()
-  @IsNumberString()@IsNotEmpty()
+  @IsNumberString() @IsNotEmpty()
   grossHourlyRate: string;
+
+  @IsOptional()
+  @IsUUID()
+  lineManagerId?: string;
 }

@@ -1,5 +1,5 @@
 import { Role } from 'src/auth/roles.enum';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index, ManyToOne, JoinColumn } from 'typeorm';
 import { ContractType, Gender, MaritalStatus, Relationship } from './dto/details-employee.dto';
 import { StateTN } from './constants/tunisia';
 
@@ -93,8 +93,6 @@ export class Employee {
   @Column({ nullable: true })
   designation?: string;
 
-  @Column({ nullable: true })
-  lineManager?: string;
 
   @Column({ type: 'enum', enum: ContractType, nullable: true })
   contractType?: ContractType;
@@ -122,4 +120,12 @@ export class Employee {
   @Index()
   @Column({ default: true })
   isDraft: boolean;
+
+  @Column({ type: 'uuid', nullable: true })
+  lineManagerId?: string;
+
+  @ManyToOne(() => Employee, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'lineManagerId' })
+  lineManager?: Employee;
+
 }
