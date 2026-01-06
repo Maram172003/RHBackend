@@ -4,6 +4,7 @@ import { StateTN } from "../constants/tunisia";
 import { IsCityOfState } from "src/common/validators/is-city-of-state.validator";
 import { NATIONALITIES, Nationality } from "../constants/nationalities";
 import { CreateEmployeeDto } from "./create-employee.dto";
+import { Column } from "typeorm";
 
 
 export enum MaritalStatus {
@@ -38,6 +39,8 @@ export enum Relationship {
 
 export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
 
+  @Column({ unique: true })
+  email: string;
   @ApiProperty()
   @IsString() @IsNotEmpty()
   firstName: string;

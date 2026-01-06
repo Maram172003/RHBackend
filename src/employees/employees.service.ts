@@ -74,7 +74,21 @@ export class EmployeesService {
 
   async saveDetails(id: string, dto: DetailsEmployeeDto) {
     const emp = await this.repo.findOne({ where: { id } });
-    if (!emp) throw new NotFoundException('Employee not found');
+     if (!emp) throw new NotFoundException('Employee not found');
+    if (dto.email !== undefined) {
+      const normalized = String(dto.email).trim().toLowerCase();
+
+      const existing = await this.repo.findOne({ where: { email: normalized } });
+
+      // email déjà pris par un autre employee
+      if (existing && existing.id !== id) {
+        throw new ConflictException('This email is already used');
+      }
+
+      emp.email = normalized;
+    }
+    
+
     Object.assign(emp, {
       firstName: dto.firstName ?? emp.firstName ?? null,
       lastName: dto.lastName ?? emp.lastName ?? null,
