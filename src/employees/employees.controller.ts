@@ -1,14 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { DetailsEmployeeDto } from './dto/details-employee.dto';
 import { UpdateRolesDto } from './dto/update-roles.dto';
 import { SubmitDraftDto } from './dto/SubmitDraftDto ';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname, join } from 'path';
+import { randomUUID } from 'crypto';
 
 @ApiTags('employees')
 @Controller('employees')
 export class EmployeesController {
+
   constructor(private readonly service: EmployeesService) { }
 
   @Post()
@@ -51,9 +56,29 @@ export class EmployeesController {
     return this.service.findById(id);
   }
 
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage: diskStorage({
+        destination: join(process.cwd(), 'uploads', 'employees'),
+        filename: (req, file, cb) => {
+          const unique = randomUUID();
+          cb(null, `${unique}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Post('submit')
-  submit(@Body() dto: SubmitDraftDto) {
-    return this.service.submitDraft(dto);
+  submitDraft(
+    @UploadedFile() photo: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    const dto = {
+      draftToken: body.draftToken,
+      details: parseIfString(body.details),
+      roles: parseIfString(body.roles),
+    };
+
+    return this.service.submitDraft(dto, photo);
   }
 
   @Delete(':id')
@@ -61,4 +86,11 @@ export class EmployeesController {
     return this.service.remove(id);
   }
 
+}
+function parseIfString<T = any>(v: any): T | undefined {
+  if (v === undefined || v === null || v === '') return undefined;
+  if (typeof v === 'string') {
+    try { return JSON.parse(v); } catch { return undefined; }
+  }
+  return v;
 }

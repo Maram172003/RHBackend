@@ -74,7 +74,7 @@ export class EmployeesService {
 
   async saveDetails(id: string, dto: DetailsEmployeeDto) {
     const emp = await this.repo.findOne({ where: { id } });
-     if (!emp) throw new NotFoundException('Employee not found');
+    if (!emp) throw new NotFoundException('Employee not found');
     if (dto.email !== undefined) {
       const normalized = String(dto.email).trim().toLowerCase();
 
@@ -87,7 +87,7 @@ export class EmployeesService {
 
       emp.email = normalized;
     }
-    
+
 
     Object.assign(emp, {
       firstName: dto.firstName ?? emp.firstName ?? null,
@@ -125,7 +125,7 @@ export class EmployeesService {
       grossHourlyRate: dto.grossHourlyRate ?? emp.grossHourlyRate ?? null,
 
       lineManagerId: dto.lineManagerId ?? emp.lineManagerId ?? null,
-
+      photoUrl: dto.photoUrl ?? emp.photoUrl ?? null,
     });
     emp.isDraft = false;
     await this.repo.save(emp);
@@ -171,7 +171,7 @@ export class EmployeesService {
     return { ok: true };
   }
 
-  async submitDraft(dto: SubmitDraftDto) {
+  async submitDraft(dto: SubmitDraftDto, photo?: Express.Multer.File) {
     console.log('SUBMIT token =', dto.draftToken);
     const key = `employee-draft:${dto.draftToken}`;
 
@@ -188,8 +188,15 @@ export class EmployeesService {
     });
 
     const saved = await this.repo.save(employee);
+    if (photo) {
+      dto.details = dto.details ?? ({} as any);
+      (dto.details as any).photoUrl = `/uploads/employees/${photo.filename}`;
+    }
 
     if (dto.details) {
+      if (photo) {
+        dto.details.photoUrl = `/uploads/employees/${photo.filename}`;
+      }
       await this.saveDetails(saved.id, dto.details);
     }
     if (dto.roles) {

@@ -128,4 +128,6 @@ export class Employee {
   @JoinColumn({ name: 'lineManagerId' })
   lineManager?: Employee;
 
+  @Column({ nullable: true })
+  photoUrl?: string;
 }

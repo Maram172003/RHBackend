@@ -1,39 +1,46 @@
 import { Employee } from "src/employees/employees.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { LeaveStatus } from "./leave-status.enum";
+import { LeavePart } from "./leave-part.enum";
 
 @Entity('leaves')
 export class Leave {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column()
-    leaveType: string;
+  @Column()
+  employeeId: string;
 
-    @Column({ type: 'date' })
-    startDate: string;
+  @Column()
+  leaveType: string;
 
-    @Column()
-    startPart: string;
+  @Column({ type: 'date' })
+  startDate: string;
 
-    @Column({ type: 'date' })
-    endDate: string;
+  @Column({ type: 'enum', enum: LeavePart, default: LeavePart.Full })
+  startPart: LeavePart;
 
-    @Column()
-    endPart: string;
+  @Column({ type: 'date' })
+  endDate: string;
 
+  @Column({ type: 'enum', enum: LeavePart, default: LeavePart.Full })
+  endPart: LeavePart;
 
-    @Column({ default: 'onhold' })
-    status: string;
+  @Column({ type: 'enum', enum: LeaveStatus, default: LeaveStatus.Pending })
+  status: LeaveStatus;
 
-    @Column({ nullable: true })
-    attachmentPath: string | null;
+  @Column({ nullable: true })
+  attachmentUrl?: string;
 
-    @ManyToOne(() => Employee, { eager: true, onDelete: 'CASCADE' })
-    employee: Employee;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column({ type: 'float', default: 0 })
+  duration: number;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @Column({ type: 'varchar', nullable: true })
+  otherReason?: string;
+
+  @Column({ nullable: true })
+  managerId?: string;
 }

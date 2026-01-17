@@ -152,4 +152,8 @@ export class DetailsEmployeeDto extends PartialType(CreateEmployeeDto) {
   @IsOptional()
   @IsUUID()
   lineManagerId?: string;
+
+  @IsOptional()
+  @IsString()
+  photoUrl?: string;
 }

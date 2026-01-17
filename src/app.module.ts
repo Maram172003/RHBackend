@@ -24,8 +24,9 @@ import { CacheModule } from '@nestjs/cache-manager';
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       entities: [Employee],
-      synchronize: true,
 
+      synchronize: true,
+      autoLoadEntities: true,
     }),
     EmployeesModule,
     AuthModule,

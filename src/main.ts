@@ -8,7 +8,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
    const port = Number(process.env.PORT || 4000);
    const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true });
-   app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads/' });
+   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
     app.enableCors({
     origin: ['http://localhost:4200'],
     credentials: true,

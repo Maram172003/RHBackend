@@ -10,6 +10,6 @@ import { LookupsController } from 'src/lookups/lookups.controller';
   imports: [TypeOrmModule.forFeature([Employee])],
   providers: [EmployeesService],
   controllers: [EmployeesController, LookupsController],
-  exports: [EmployeesService],
+  exports: [EmployeesService, TypeOrmModule],
 })
 export class EmployeesModule {}
