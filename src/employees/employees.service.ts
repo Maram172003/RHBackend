@@ -125,7 +125,7 @@ export class EmployeesService {
       grossHourlyRate: dto.grossHourlyRate ?? emp.grossHourlyRate ?? null,
 
       lineManagerId: dto.lineManagerId ?? emp.lineManagerId ?? null,
-      photoUrl: dto.photoUrl ?? emp.photoUrl ?? null,
+      photoUrl: (dto.photoUrl !== undefined) ? dto.photoUrl : (emp.photoUrl ?? null),
     });
     emp.isDraft = false;
     await this.repo.save(emp);

@@ -8,6 +8,7 @@ import { LookupsController } from './lookups/lookups.controller';
 import { LookupsModule } from './lookups/lookups.module';
 import { LeavesModule } from './leaves/leaves.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { CacheModule } from '@nestjs/cache-manager';
     EmployeesModule,
     AuthModule,
     LookupsModule,
-    LeavesModule
+    LeavesModule,
+    NotificationModule
   ],
   controllers: [LookupsController],
 })

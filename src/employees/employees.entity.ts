@@ -26,7 +26,7 @@ export class Employee {
   })
   roles: Role[];
 
-  //
+  
 
   @Column({ nullable: true })
   firstName?: string;

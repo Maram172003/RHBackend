@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
@@ -9,6 +9,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { randomUUID } from 'crypto';
+import { AuthGuard } from '@nestjs/passport';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('employees')
 @Controller('employees')
@@ -28,6 +30,33 @@ export class EmployeesController {
   async saveDetails(@Param('id') id: string, @Body() dto: DetailsEmployeeDto) {
     return this.service.saveDetails(id, dto);
   }
+  /////////////////////////
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage: diskStorage({
+        destination: join(process.cwd(), 'uploads', 'employees'),
+        filename: (req, file, cb) => {
+          const unique = randomUUID();
+          cb(null, `${unique}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  @Patch(':id/details-with-photo')
+  async updateDetailsWithPhoto(
+    @Param('id') id: string,
+    @UploadedFile() photo: Express.Multer.File,
+    @Body() body: any,
+  ) {
+    const details = parseIfString(body.details) ?? {};
+    const removePhoto = body.removePhoto === 'true' || body.removePhoto === true;
+
+    if (photo) details.photoUrl = `/uploads/employees/${photo.filename}`;
+    if (removePhoto) details.photoUrl = null;
+
+    return this.service.saveDetails(id, details);
+  }
+  ///////////////////////////
 
   @Patch(':id/roles')
   @ApiOperation({ summary: 'Mettre à jour les rôles (dernier onglet)' })
@@ -51,6 +80,8 @@ export class EmployeesController {
   deleteDraft(@Param('token') token: string) {
     return this.service.deleteDraft(token);
   }
+
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findById(id);
@@ -85,6 +116,10 @@ export class EmployeesController {
   remove(@Param('id') id: string) {
     return this.service.remove(id);
   }
+
+
+
+
 
 }
 function parseIfString<T = any>(v: any): T | undefined {

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { extname, join } from 'path';
@@ -25,11 +25,23 @@ export class LeavesController {
     return this.leaves.findByEmployee(employeeId);
   }
 
-  
+
   @UseGuards(AuthGuard('jwt'))
   @Get('team')
   team(@Req() req: any) {
     const managerId = (req.user?.id ?? req.user?.sub) as string;
+
+
+    const roleRaw = req.user?.role ?? req.user?.roles;
+    const role = Array.isArray(roleRaw) ? roleRaw[0] : roleRaw;
+    const roleLc = (role ?? '').toString().toLowerCase();
+
+
+    if (roleLc === 'admin') {
+      return this.leaves.findAllLeavesForAdmin();
+    }
+
+
     return this.leaves.findTeamLeaves(managerId);
   }
 
@@ -73,6 +85,14 @@ export class LeavesController {
 
     const leave = await this.leaves.create(employeeId, dto, file);
     return { ok: true, leave };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('blocked')
+  blocked(@Req() req: any, @Query('year') year?: string) {
+    const employeeId = (req.user?.id ?? req.user?.sub) as string;
+    const y = year ? Number(year) : new Date().getFullYear();
+    return this.leaves.getBlockedDatesForEmployee(employeeId, y);
   }
 
   @UseGuards(AuthGuard('jwt'))

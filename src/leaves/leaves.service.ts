@@ -147,21 +147,104 @@ export class LeavesService {
   }
 
   async updateStatusByManager(managerId: string, leaveId: string, status: LeaveStatus) {
-    
+
     const leave = await this.repo.findOne({ where: { id: leaveId } });
     if (!leave) throw new NotFoundException('Leave not found');
 
-   
+
     const emp = await this.empRepo.findOne({
       where: { id: leave.employeeId, lineManagerId: managerId, isDraft: false },
       select: ['id'],
     });
     if (!emp) throw new BadRequestException('Not your team leave');
 
-    
+
     leave.status = status;
     await this.repo.save(leave);
 
     return { ok: true, leave };
   }
+
+  async findAllLeavesForAdmin() {
+
+    const emps = await this.empRepo.find({
+      where: { isDraft: false },
+      select: ['id', 'firstName', 'lastName', 'email'],
+    });
+
+    const map = new Map(
+      emps.map(e => [e.id, `${e.firstName ?? ''} ${e.lastName ?? ''}`.trim() || e.email]),
+    );
+
+
+    const leaves = await this.repo.find({
+      order: { createdAt: 'DESC' },
+    });
+
+    return leaves.map(l => ({
+      ...l,
+      employeeName: map.get(l.employeeId) ?? l.employeeId,
+    }));
+  }
+  ////////
+  private toKey(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  private expandRange(startISO: string, endISO: string): string[] {
+    const out: string[] = [];
+    const start = new Date(startISO);
+    const end = new Date(endISO);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      out.push(this.toKey(d));
+    }
+    return out;
+  }
+
+  private getTunisiaHolidays(year: number): string[] {
+    return [
+      `${year}-01-01`, // New Year
+      `${year}-03-20`, // Independence
+      `${year}-04-09`, // Martyrs
+      `${year}-05-01`, // Labour
+      `${year}-07-25`, // Republic
+      `${year}-08-13`, // Women’s Day
+      `${year}-10-15`, // Evacuation
+      `${year}-12-17`, // Revolution
+    ];
+  }
+  async getBlockedDatesForEmployee(employeeId: string, year: number) {
+    const holidays = this.getTunisiaHolidays(year);
+
+    const leaves = await this.repo.find({
+      where: {
+        employeeId,
+        status: In([LeaveStatus.Pending, LeaveStatus.Approved]),
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+   
+    const yearStart = `${year}-01-01`;
+    const yearEnd = `${year}-12-31`;
+
+    const busySet = new Set<string>();
+    for (const l of leaves) {
+      
+      if (l.endDate < yearStart || l.startDate > yearEnd) continue;
+      this.expandRange(l.startDate, l.endDate).forEach(d => busySet.add(d));
+    }
+
+    const busy = Array.from(busySet);
+    const disabled = Array.from(new Set([...holidays, ...busy]));
+
+    return { year, holidays, busy, disabled };
+  }
+
 }
